@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 import { styled } from '@mui/material/styles';
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, IconButton } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { ToastContainer, toast } from 'react-toastify';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -46,8 +47,6 @@ const EditUser = ({ userId }) => {
     const [email, setEmail] = React.useState();
     const [picture, setPicture] = React.useState();
 
-    console.log(title);
-
     React.useEffect(() => {
         axios({
             method: 'get',
@@ -81,8 +80,6 @@ const EditUser = ({ userId }) => {
             picture: picture,
         }
 
-        console.log(sendData);
-
         axios({
             method: 'put',
             url: `https://dummyapi.io/data/v1/user/${userId}`,
@@ -93,13 +90,33 @@ const EditUser = ({ userId }) => {
             }
         })
         .then((result) => {
-            console.log(result.data);
-            alert('Berhasil!')
+            setOpenModal(false);
+            toast.success('Successfully edit user data!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
         })
-        .catch(err => console.error(err));
-
+        .catch((err) => {
+            console.error(err);
+            setOpenModal(false);
+            toast.error('Failed to edit user data', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        });
     }
     return (<>
+        <ToastContainer />
         {userId !== '' &&
             <BootstrapDialog
                 fullWidth
