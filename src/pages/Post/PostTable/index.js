@@ -6,6 +6,9 @@ import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreatePost from '../CreatePost';
+import EditPost from '../EditPost';
+import Swal from 'sweetalert2';
+import { ToastContainer, toast } from 'react-toastify';
 
 const PostTable = () => {
     const [postData, setPostData] = React.useState([]);
@@ -53,25 +56,30 @@ const PostTable = () => {
                     </div>, 
                 Image: <img className='post-img' src={post.image} onClick={() => setModalImg({id: post.id})} />,
                 User: post.owner.firstName,
-                Action:   <div className="">
-                            <Button 
-                                variant="contained" 
-                                size="small" 
-                                className='m-2'
-                                startIcon={<EditIcon/>}
-                                onClick={() => setModalEdit({id: post.id})}
-                            >
-                                Edit
-                            </Button>
-                            <Button 
-                                variant="contained" 
-                                size="small" 
-                                color="error" 
-                                startIcon={<DeleteIcon/>}
-                                onClick={() => deletePost(post.id)}
-                            >
-                                Delete
-                            </Button>
+                Action: <div className="d-inline-flex">
+                            <div>
+                                <Button 
+                                    variant="contained" 
+                                    size="small"
+                                    startIcon={<EditIcon/>}
+                                    onClick={() => setModalEdit({id: post.id})}
+                                >
+                                    Edit
+                                </Button>
+                            </div>
+                            <div className='mx-1'>|</div>
+                            <div>
+                                <Button 
+                                    variant="contained" 
+                                    size="small" 
+                                    color="error" 
+                                    startIcon={<DeleteIcon/>}
+                                    onClick={() => deletePost(post.id)}
+                                >
+                                    Delete
+                                </Button>
+                            </div>
+                            
                         </div>,
             })
           ),
@@ -94,23 +102,57 @@ const PostTable = () => {
     }, []);
 
     const deletePost = (id) => {
-        axios({
-            method: 'delete',
-            url: `https://dummyapi.io/data/v1/post/${id}`,
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-                'app-id': '62996cb2689bf0731cb00285'
+        Swal.fire({
+            text: 'Are you sure want to delete this data?',
+            icon: 'warning',
+            showDenyButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            denyButtonText: 'No',
+            confirmButtonText: 'Yes'
+        })
+        .then((result) => {
+            if (result.isConfirmed) {
+                axios({
+                    method: 'delete',
+                    url: `https://dummyapi.io/data/v1/post/${id}`,
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+                        'app-id': '62996cb2689bf0731cb00285'
+                    }
+                })
+                .then((result) => {
+                    toast.success('Successfully delete data!', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                    const newPostData = postData.filter((post) => post.id !== id)
+                    setPostData(newPostData)
+                })
+                .catch((err) => {
+                    console.error(err);
+                    toast.error('Failed to delete data', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                });
             }
-          })
-          .then((result) => {
-            console.log('Data berhasil dihapus!')
-            const newPostData = postData.filter((post) => post.id !== id)
-            setPostData(newPostData)
-          })
-          .catch(err => console.error(err))
+        })
+        .catch(err => console.error(err));
     }
 
     return (<>
+        <ToastContainer />
         <div className="container">
             <div className="d-flex justify-content-start">
                 <Button variant="contained" onClick={() => setModalCreate(true)}>Create Post</Button>
@@ -130,6 +172,7 @@ const PostTable = () => {
             </div>
         </div>
         <CreatePost open={modalCreate} onClose={() => setModalCreate(false)} />
+        <EditPost postId={modalEdit.id}/>
     </>)
 }
 export default PostTable;
