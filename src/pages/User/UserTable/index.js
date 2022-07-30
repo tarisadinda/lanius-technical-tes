@@ -41,24 +41,29 @@ const UserTable = () => {
                 key: index,
                 Name: user.firstName,
                 Picture: <img className='user-img' src={user.picture} onClick={() => setModalImg({id: user.id})} />,
-                Action:   <div className="">
-                            <Button 
-                                variant="contained" 
-                                size="small" 
-                                startIcon={<EditIcon/>}
-                                onClick={() => setModalEdit({id: user.id})}
-                            >
-                                Edit
-                            </Button>
-                            <Button 
-                                variant="contained" 
-                                size="small" 
-                                color="error" 
-                                startIcon={<DeleteIcon/>}
-                                onClick={() => deleteUser(user.id)}
-                            >
-                                Delete
-                            </Button>
+                Action: <div className="d-inline-flex">
+                            <div>
+                                <Button 
+                                    variant="contained" 
+                                    size="small" 
+                                    startIcon={<EditIcon/>}
+                                    onClick={() => setModalEdit({id: user.id})}
+                                >
+                                    Edit
+                                </Button>
+                            </div>
+                            <div className='mx-1'>|</div>
+                            <div>
+                                <Button 
+                                    variant="contained" 
+                                    size="small" 
+                                    color="error" 
+                                    startIcon={<DeleteIcon/>}
+                                    onClick={() => deleteUser(user.id)}
+                                >
+                                    Delete
+                                </Button>
+                            </div>
                         </div>,
             })
           ),
@@ -75,7 +80,6 @@ const UserTable = () => {
             }
         })
         .then(result => {
-            console.log(result);
             setUserData(result.data.data);
         })
         .catch(err => console.error(err));
@@ -114,9 +118,21 @@ const UserTable = () => {
                     const newUserData = userData.filter((user) => user.id !== id)
                     setUserData(newUserData)
                 })
+                .catch((err) => {
+                    console.error(err);
+                    toast.error('Failed to delete data', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                });
             }             
         })
-        .catch(err => console.error(err))
+        .catch(err => console.error(err));
     }
 
     return (<>
